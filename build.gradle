@@ -1,13 +1,7 @@
-import groovy.json.*
-
 // something
 
 // jenkins
-def getJson(url) {
-    println "start getJson $url"
-    def response = new URL(url).text
-    return new JsonSlurper().parseText(response)
-}
+import groovy.json.*
 
 ext {
     jenkinsUrl = 'http://localhost:8080'
@@ -17,18 +11,24 @@ ext {
     println "jobName is ${jobName}"
 }
 
+def getJson(url) {
+    println "start getJson $url"
+    def response = new URL(url).text
+    return new JsonSlurper().parseText(response)
+}
+
 def getJenkinsMessage(message)  {
     def url = "${jenkinsUrl}/job/${jobName}/${buildNumber}/api/json"
-    def items = getJson(url).get('changeSet').get('items')
+    def items = getJson(url)[changeSet][items]
     for(int i = 0; i < items.size(); i++) {
-        message += items.get(i).get('msg') + ' '
+        message += items[i][msg] + ' '
     }
 
     return message
 }
 
 task simple << {
-    String message = 'B' + buildNumber + ' '
+    String message = "B${buildNumber} "
     println getJenkinsMessage(message)
 }
 
