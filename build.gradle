@@ -19,9 +19,9 @@ def getJson(url) {
 
 def getJenkinsMessage(message)  {
     def url = "${jenkinsUrl}/job/${jobName}/${buildNumber}/api/json"
-    def items = getJson(url)[changeSet][items]
-    for(int i = 0; i < items.size(); i++) {
-        message += items[i][msg] + ' '
+    def items = getJson(url)['changeSet']['items']
+    items.eachWithIndex() { obj, i ->
+        message += obj['msg'] + ' '
     }
 
     return message
