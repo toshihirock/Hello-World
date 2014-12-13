@@ -1,0 +1,53 @@
+import groovy.json.*
+
+// something
+
+// jenkins
+def getJson(url) {
+    println "start getJson $url"
+    def response = new URL(url).text
+    return new JsonSlurper().parseText(response)
+}
+
+ext {
+    jenkinsUrl = 'http://localhost:8080'
+    buildNumber = System.getenv("BUILD_NUMBER");
+    jobName = System.getenv("JOB_NAME");
+    println "build number is ${buildNumber}"
+    println "jobName is ${jobName}"
+}
+
+def getJenkinsMessage(message)  {
+    def url = "${jenkinsUrl}/job/${jobName}/${buildNumber}/api/json"
+    def items = getJson(url).get('changeSet').get('items')
+    for(int i = 0; i < items.size(); i++) {
+        message += items.get(i).get('msg') + ' '
+    }
+
+    return message
+}
+
+task simple << {
+    String message = 'B' + buildNumber + ' '
+    println getJenkinsMessage(message)
+}
+
+// sample
+/**
+deploygate {
+    userName = ownerName
+    token = myToken
+
+    apks {
+        example {
+            sourceFile = file("build/outputs/apk/hoge.apk")
+
+            //Below is optional
+            if(buildNumber != null) {
+                String message = 'B' + buildNumber + ' '
+                message = getJenkinsMessage(message)
+            }
+        }
+    }
+}
+**/
